@@ -1,0 +1,30 @@
+version: 2.1
+
+default: &default
+  docker:
+    - image: circleci/golang:1.14
+
+jobs:
+  build:
+    <<: *default
+    steps:
+      - checkout
+      - run: make build
+  lint:
+    <<: *default
+    steps:
+      - checkout
+      - run: make lint
+  test:
+    <<: *default
+    steps:
+      - checkout
+      - run: make test
+
+workflows:
+  version: 2
+  general:
+    jobs:
+      - build
+      - lint
+      - test
