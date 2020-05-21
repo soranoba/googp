@@ -81,9 +81,10 @@ func (f *valueAccessor) Set(key string, val string) error {
 	}
 
 	if !f.value.IsValid() {
-		return fmt.Errorf("invalid")
+		return fmt.Errorf("invalid reflect.Value")
 	}
 
+	ty := f.value.Type()
 	v := f.value
 	if f.value.Kind() == reflect.Ptr {
 		if f.value.IsNil() && f.value.CanSet() {
@@ -95,7 +96,7 @@ func (f *valueAccessor) Set(key string, val string) error {
 		}
 	}
 	if !v.CanSet() {
-		return fmt.Errorf("%s cannot set. (value = %+v)", key, val)
+		return fmt.Errorf("Cannot set to value")
 	}
 
 	switch v.Kind() {
@@ -104,28 +105,28 @@ func (f *valueAccessor) Set(key string, val string) error {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		i, err := strconv.ParseInt(val, 10, 64)
 		if err != nil || reflect.Zero(v.Type()).OverflowInt(i) {
-			return fmt.Errorf("%s cannot convert (value = %+v)", key, val)
+			return convertErr(key, val, ty)
 		}
 		v.Set(reflect.ValueOf(i).Convert(v.Type()))
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		u, err := strconv.ParseUint(val, 10, 64)
 		if err != nil || reflect.Zero(v.Type()).OverflowUint(u) {
-			return fmt.Errorf("%s cannot convert (value = %+v)", key, val)
+			return convertErr(key, val, ty)
 		}
 		v.Set(reflect.ValueOf(u).Convert(v.Type()))
 	case reflect.Float32, reflect.Float64:
 		n, err := strconv.ParseFloat(val, 64)
 		if err != nil || reflect.Zero(v.Type()).OverflowFloat(n) {
-			return fmt.Errorf("%s cannot convert (value = %+v)", key, val)
+			return convertErr(key, val, ty)
 		}
 		v.Set(reflect.ValueOf(n).Convert(v.Type()))
 	default:
 		unmarshaler, ok := v.Addr().Interface().(encoding.TextUnmarshaler)
 		if !ok {
-			return fmt.Errorf("%+v unsupported", v)
+			return unsupportedErr(key, ty)
 		}
 		if err := unmarshaler.UnmarshalText([]byte(val)); err != nil {
-			return fmt.Errorf("%s cannot convert (value = %+v)", key, val)
+			return convertErr(key, val, ty)
 		}
 	}
 
@@ -145,7 +146,7 @@ func (f *arrayAccessor) Set(key string, val string) error {
 	if f.idx >= f.value.Len() {
 		if f.value.Kind() == reflect.Slice {
 			if !f.value.CanSet() {
-				return fmt.Errorf("cannot set")
+				return fmt.Errorf("Cannot set to value")
 			}
 			v := reflect.New(f.value.Type().Elem()).Elem()
 			f.value.Set(reflect.Append(f.value, v))
@@ -167,4 +168,12 @@ func (f *structAccessor) Set(key string, val string) error {
 		}
 	}
 	return nil
+}
+
+func convertErr(key string, val string, ty reflect.Type) error {
+	return fmt.Errorf("%s field is invalid. (type = %s, value = %s)", key, ty.Name(), val)
+}
+
+func unsupportedErr(key string, ty reflect.Type) error {
+	return fmt.Errorf("%s is unsupported type (field = %s)", ty.Name(), key)
 }

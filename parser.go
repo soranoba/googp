@@ -15,11 +15,9 @@ type Parser struct {
 
 // ParserOpts is option of `Parser`.
 type ParserOpts struct {
-}
-
-type meta struct {
-	Property string
-	Content  string
+	// You can add processing when you need to regard the Node in the `<head>` as `<meta>`.
+	// For example, you can use it when you want to get the `<title>`.
+	PreNodeFunc func(*html.Node) *Meta
 }
 
 // NewParser create a `Parser`
@@ -50,30 +48,50 @@ func (parser *Parser) ParseNode(n *html.Node, i interface{}) error {
 }
 
 func (parser *Parser) parseNode(n *html.Node, ac accessor) error {
-	for n := n.FirstChild; n != nil; n = n.NextSibling {
-		if n.DataAtom == atom.Meta {
-			if meta := getOGPMeta(n.Attr); meta != nil {
-				if err := ac.Set(meta.Property, meta.Content); err != nil {
-					return err
-				}
-			}
-		} else {
-			if err := parser.parseNode(n, ac); err != nil {
-				return err
-			}
+	switch n.DataAtom {
+	case atom.Html, atom.Head, 0:
+		return parser.parseChildNode(n, ac)
+	case atom.Body:
+		return nil
+	}
+
+	var meta *Meta
+	if f := parser.opts.PreNodeFunc; f != nil {
+		meta = f(n)
+	}
+	if meta == nil {
+		meta = getOGPMeta(n)
+	}
+
+	if meta != nil {
+		if err := ac.Set(meta.Property, meta.Content); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func getOGPMeta(attr []html.Attribute) *meta {
-	meta := new(meta)
-	for _, a := range attr {
-		switch a.Key {
+func (parser *Parser) parseChildNode(n *html.Node, ac accessor) error {
+	for n := n.FirstChild; n != nil; n = n.NextSibling {
+		if err := parser.parseNode(n, ac); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func getOGPMeta(n *html.Node) *Meta {
+	if n.DataAtom != atom.Meta {
+		return nil
+	}
+
+	meta := new(Meta)
+	for _, attr := range n.Attr {
+		switch attr.Key {
 		case "property":
-			meta.Property = a.Val
+			meta.Property = attr.Val
 		case "content":
-			meta.Content = a.Val
+			meta.Content = attr.Val
 		}
 	}
 

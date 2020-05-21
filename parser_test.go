@@ -1,8 +1,12 @@
 package googp
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
+
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 func Test_Parse1(t *testing.T) {
@@ -14,6 +18,25 @@ func Test_Parse1(t *testing.T) {
 	assertNoError(t, parser.Parse(res.Body, ogp))
 
 	assertEqual(t, ogp.Title, "title")
+	assertEqual(t, ogp.Type, "website")
+	assertEqual(t, ogp.URL, "http://example.com")
+	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
+}
+
+func Test_Parse1_PreNodeFunc(t *testing.T) {
+	res, err := http.Get("http://localhost:8080/1.html")
+	assertNoError(t, err)
+
+	parser := NewParser(ParserOpts{PreNodeFunc: func(node *html.Node) *Meta {
+		if node.DataAtom == atom.Title {
+			return &Meta{Property: "og:title", Content: node.FirstChild.Data}
+		}
+		return nil
+	}})
+	ogp := new(OGP)
+	assertNoError(t, parser.Parse(res.Body, ogp))
+
+	assertEqual(t, ogp.Title, "SamplePage")
 	assertEqual(t, ogp.Type, "website")
 	assertEqual(t, ogp.URL, "http://example.com")
 	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
@@ -54,4 +77,17 @@ func Test_Parse2(t *testing.T) {
 	assertEqual(t, ogp.LocaleAlternate[0], "fr_FR")
 	assertEqual(t, ogp.LocaleAlternate[1], "es_ES")
 	assertEqual(t, ogp.SiteName, "IMDb")
+}
+
+func Test_Parse3(t *testing.T) {
+	res, err := http.Get("http://localhost:8080/3.html")
+	assertNoError(t, err)
+
+	parser := NewParser()
+	ogp := new(OGP)
+	assertEqual(
+		t,
+		fmt.Sprintf("%+v", parser.Parse(res.Body, ogp)),
+		"og:image:width field is invalid. (type = int, value = invalid)",
+	)
 }
