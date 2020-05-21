@@ -7,3 +7,11 @@ services:
       - "8080:80"
     volumes:
       - ./data:/usr/share/nginx/html
+  go:
+    image: golang:1.14
+    links:
+      - nginx
+    environment:
+      NGINX_HOST: "nginx"
+    volumes:
+      - ./:/app

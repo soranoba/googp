@@ -3,6 +3,7 @@ package googp
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
 	"golang.org/x/net/html"
@@ -10,7 +11,7 @@ import (
 )
 
 func Test_Parse1(t *testing.T) {
-	res, err := http.Get("http://localhost:8080/1.html")
+	res, err := http.Get(endpoint() + "/1.html")
 	assertNoError(t, err)
 
 	parser := NewParser()
@@ -24,7 +25,7 @@ func Test_Parse1(t *testing.T) {
 }
 
 func Test_Parse1_PreNodeFunc(t *testing.T) {
-	res, err := http.Get("http://localhost:8080/1.html")
+	res, err := http.Get(endpoint() + "/1.html")
 	assertNoError(t, err)
 
 	parser := NewParser(ParserOpts{PreNodeFunc: func(node *html.Node) *Meta {
@@ -43,7 +44,7 @@ func Test_Parse1_PreNodeFunc(t *testing.T) {
 }
 
 func Test_Parse2(t *testing.T) {
-	res, err := http.Get("http://localhost:8080/2.html")
+	res, err := http.Get(endpoint() + "/2.html")
 	assertNoError(t, err)
 
 	parser := NewParser()
@@ -80,7 +81,7 @@ func Test_Parse2(t *testing.T) {
 }
 
 func Test_Parse3(t *testing.T) {
-	res, err := http.Get("http://localhost:8080/3.html")
+	res, err := http.Get(endpoint() + "/3.html")
 	assertNoError(t, err)
 
 	parser := NewParser()
@@ -90,4 +91,12 @@ func Test_Parse3(t *testing.T) {
 		fmt.Sprintf("%+v", parser.Parse(res.Body, ogp)),
 		"og:image:width field is invalid. (type = int, value = invalid)",
 	)
+}
+
+func endpoint() string {
+	str, ok := os.LookupEnv("NGINX_HOST")
+	if ok {
+		return "http://" + str
+	}
+	return "http://localhost:8080"
 }

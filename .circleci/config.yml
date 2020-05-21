@@ -1,25 +1,31 @@
 version: 2.1
 
-default: &default
+default_on_docker: &default_on_docker
   docker:
     - image: circleci/golang:1.14
 
+defaults_on_machine: &defaults_on_machine
+  machine:
+    docker_layer_caching: false
+
 jobs:
   build:
-    <<: *default
+    <<: *default_on_docker
     steps:
       - checkout
       - run: make build
   lint:
-    <<: *default
+    <<: *default_on_docker
     steps:
       - checkout
       - run: make lint
   test:
-    <<: *default
+    <<: *defaults_on_machine
     steps:
       - checkout
-      - run: make test
+      - run: curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose
+      - run: chmod +x docker-compose
+      - run: ./docker-compose run go make -C /app test
 
 workflows:
   version: 2
