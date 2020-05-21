@@ -6,8 +6,14 @@ import (
 	"testing"
 )
 
-func TestParse1(t *testing.T) {
+func TestFetch(t *testing.T) {
+	ogp := new(OGP)
+	assertNoError(t, Fetch(endpoint()+"/1.html", ogp))
 
+	assertEqual(t, ogp.Title, "title")
+	assertEqual(t, ogp.Type, "website")
+	assertEqual(t, ogp.URL, "http://example.com")
+	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
 }
 
 func assertEqual(t *testing.T, got, expected interface{}) bool {

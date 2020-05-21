@@ -1,18 +1,5 @@
 package googp
 
-import (
-	"errors"
-	"net/url"
-)
-
-var (
-	ErrInvalidFormat error = errors.New("invalid format")
-)
-
-type URL struct {
-	url.URL
-}
-
 type OGP struct {
 	Title  string  `googp:"og:title" json:"title,omitempty"`
 	Type   string  `googp:"og:type"  json:"type,omitempty"`
@@ -49,38 +36,4 @@ type Video struct {
 	Type      string `googp:"og:video:type"         json:"type,omitempty"`
 	Width     int    `googp:"og:video:width"        json:"width,omitempty"`
 	Height    int    `googp:"og:video:height"       json:"height,omitempty"`
-}
-
-func (url URL) MarshalText() (text []byte, err error) {
-	return []byte(url.String()), nil
-}
-
-func (url *URL) UnmarshalText(text []byte) error {
-	u, err := url.Parse(string(text))
-	if err != nil {
-		return err
-	}
-	url.URL = *u
-	return nil
-}
-
-func (url URL) MarshalJSON() ([]byte, error) {
-	return []byte("\"" + url.String() + "\""), nil
-}
-
-func (u *URL) UnmarshalJSON(data []byte) error {
-	if len(data) < 2 {
-		return ErrInvalidFormat
-	}
-
-	if !(data[0] == '"' && data[len(data)-1] == '"') {
-		return ErrInvalidFormat
-	}
-
-	got, err := url.Parse(string(data[1 : len(data)-1]))
-	if err != nil {
-		return err
-	}
-	u.URL = *got
-	return nil
 }
