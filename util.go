@@ -17,18 +17,3 @@ func toSnake(str string) string {
 	}
 	return string(runes)
 }
-
-// isUpperPrefix returns true if the string starts with an uppercase letter.
-// Otherwise, it returns false.
-func isUpperPrefix(str string) bool {
-	runes := []rune(str)
-	if len(runes) == 0 {
-		return false
-	}
-
-	c := runes[0]
-	if c >= 'A' && c <= 'Z' {
-		return true
-	}
-	return false
-}

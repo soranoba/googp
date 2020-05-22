@@ -123,3 +123,39 @@ func Test_StructAccessor(t *testing.T) {
 	assertEqual(t, *v.Description, "description")
 	assertEqual(t, v.Url, (*string)(nil))
 }
+
+func Test_StructAccessor_Anonymous(t *testing.T) {
+	var og1 struct {
+		OGP
+	}
+	ac := newAccessor(nil, reflect.ValueOf(&og1))
+	assertNoError(t, ac.Set("og:title", "title"))
+	assertEqual(t, og1.Title, "title")
+
+	// TODO
+	//
+	// var og2 struct {
+	// 	*OGP
+	// }
+	// ac = newAccessor(nil, reflect.ValueOf(&og2))
+	// assertNoError(t, ac.Set("og:title", "title"))
+	// assertEqual(t, og2.Title, "title")
+}
+
+func Test_StructAccessor_Private(t *testing.T) {
+	var og1 struct {
+		ogp OGP
+		A   string
+	}
+	ac := newAccessor(nil, reflect.ValueOf(&og1))
+	assertNoError(t, ac.Set("og:title", "title"))
+	assertEqual(t, og1.ogp.Title, "")
+
+	var og2 struct {
+		ogp *OGP
+		A   string
+	}
+	ac = newAccessor(nil, reflect.ValueOf(&og2))
+	assertNoError(t, ac.Set("og:title", "title"))
+	assertEqual(t, og2.ogp, (*OGP)(nil))
+}

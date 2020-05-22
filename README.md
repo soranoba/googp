@@ -14,6 +14,7 @@ googp is a OGP (Open Graph protocol) parser library for Golang.
 
 ```go
 import (
+    "fmt"
     "github.com/soranoba/googp"
 )
 

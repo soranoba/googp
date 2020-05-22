@@ -42,10 +42,6 @@ func newAccessor(tag *tag, v reflect.Value) accessor {
 		values := make(map[string]accessor)
 		for i := 0; i < t.NumField(); i++ {
 			f := t.Field(i)
-			// NOTE: private field
-			if !isUpperPrefix(f.Name) {
-				continue
-			}
 
 			fieldValue := sv.Field(i)
 			if !fieldValue.CanSet() {
@@ -161,7 +157,7 @@ func (f *arrayAccessor) Set(key string, val string) error {
 
 func (f *structAccessor) Set(key string, val string) error {
 	parts := strings.Split(key, ":")
-	for i := len(parts); i >= 1; i-- {
+	for i := len(parts); i >= 0; i-- {
 		k := strings.Join(parts[0:i], ":")
 		if v := f.values[k]; v != nil {
 			return v.Set(key, val)

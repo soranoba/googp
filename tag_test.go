@@ -20,4 +20,10 @@ func Test_Tag(t *testing.T) {
 	}
 	tag = newTag(reflect.TypeOf(v2).Field(0))
 	assertEqual(t, tag.names, []string{"og:a"})
+
+	var v3 struct {
+		OGP
+	}
+	tag = newTag(reflect.TypeOf(v3).Field(0))
+	assertEqual(t, tag.names, []string{""})
 }
