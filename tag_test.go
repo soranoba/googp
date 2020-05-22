@@ -6,24 +6,25 @@ import (
 )
 
 func Test_Tag(t *testing.T) {
-	var v1 struct {
+	var v struct {
 		A string `googp:"og:title,og:description"`
+		B string
+		C string `googp:"-"`
+		OGP
 	}
-	tag := newTag(reflect.TypeOf(v1).Field(0))
+
+	tag := newTag(reflect.TypeOf(v).Field(0))
 	assertEqual(t, tag.names, []string{"og:title", "og:description"})
 	assertEqual(t, tag.isContainsName("og:title"), true)
 	assertEqual(t, tag.isContainsName("og:description"), true)
 	assertEqual(t, tag.isContainsName("og"), false)
 
-	var v2 struct {
-		A string
-	}
-	tag = newTag(reflect.TypeOf(v2).Field(0))
-	assertEqual(t, tag.names, []string{"og:a"})
+	tag = newTag(reflect.TypeOf(v).Field(1))
+	assertEqual(t, tag.names, []string{"og:b"})
 
-	var v3 struct {
-		OGP
-	}
-	tag = newTag(reflect.TypeOf(v3).Field(0))
+	tag = newTag(reflect.TypeOf(v).Field(2))
+	assertEqual(t, tag.names, []string{})
+
+	tag = newTag(reflect.TypeOf(v).Field((3)))
 	assertEqual(t, tag.names, []string{""})
 }

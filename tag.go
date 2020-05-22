@@ -20,14 +20,17 @@ func newTag(f reflect.StructField) *tag {
 	value := f.Tag.Get(structTagKey)
 	var names []string
 
-	if value == "" {
+	switch value {
+	case "-":
+		names = []string{}
+	case "":
 		if f.Anonymous {
 			names = []string{""}
 		} else {
 			// NOTE: If tag is not specified, it is same as being given `og:${field_name}`.
 			names = []string{"og:" + toSnake(f.Name)}
 		}
-	} else {
+	default:
 		names = strings.Split(value, ",")
 	}
 	return &tag{names: names}
