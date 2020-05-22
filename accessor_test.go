@@ -124,6 +124,20 @@ func Test_StructAccessor(t *testing.T) {
 	assertEqual(t, v.Url, (*string)(nil))
 }
 
+func Test_StructAccessor_ConflictTag(t *testing.T) {
+	var v struct {
+		A string `googp:"og:title"`
+		B string `googp:"og:title"`
+	}
+
+	ac := newAccessor(nil, reflect.ValueOf(&v))
+	assertNoError(t, ac.Set("og:title", "title"))
+	assertNoError(t, ac.Set("og:title", "title"))
+	assertEqual(t, v.A, "title")
+	// If there is a conflict, the backward will be ignored.
+	assertEqual(t, v.B, "")
+}
+
 func Test_StructAccessor_NoTag(t *testing.T) {
 	var v struct {
 		A string
