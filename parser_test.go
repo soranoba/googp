@@ -80,6 +80,22 @@ func Test_Parse2(t *testing.T) {
 	assertEqual(t, ogp.SiteName, "IMDb")
 }
 
+func Test_Parse2_Custom(t *testing.T) {
+	res, err := http.Get(endpoint() + "/2.html")
+	assertNoError(t, err)
+
+	parser := NewParser()
+	type customOgp struct {
+		Images []string `googp:"og:image"`
+	}
+	ogp := new(customOgp)
+	assertNoError(t, parser.Parse(res.Body, ogp))
+
+	assertEqual(t, ogp.Images[0], "http://example.com/rock.jpg")
+	assertEqual(t, ogp.Images[1], "http://example.com/rock2.jpg")
+	assertEqual(t, ogp.Images[2], "http://example.com/rock3.jpg")
+}
+
 func Test_Parse3(t *testing.T) {
 	res, err := http.Get(endpoint() + "/3.html")
 	assertNoError(t, err)

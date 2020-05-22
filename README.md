@@ -3,7 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/soranoba/googp)](https://goreportcard.com/report/github.com/soranoba/googp)
 [![GoDoc](https://godoc.org/github.com/soranoba/googp?status.svg)](https://godoc.org/github.com/soranoba/googp)
 
-googp is a OGP (Open Graph protocol) parser library for Golang.
+googp is a [OGP (Open Graph protocol)](https://ogp.me/) parser library for Golang.
 
 ## Overviews
 
@@ -19,7 +19,11 @@ import (
 )
 
 type CustomOGP struct {
-    Title string `googp:"og:title"`
+    Title       string   `googp:"og:title"`
+    Description string   `googp:"-"`        // ignored
+    images      []string                    // private field ignored
+    Videos      []string `googp:"og:video,og:video:url"`
+    Musics      Music    `googp:"music"`    // object type
 }
 
 func main() {
@@ -36,3 +40,34 @@ func main() {
     fmt.Println(ogp2)
 }
 ```
+
+## Object Mappings
+
+### [Structured Properties](https://ogp.me/#structured)
+
+```go
+type OGP struct {
+    Image struct {
+        URL       `googp:"og:image,og:image:url"`
+        SecureURL `googp:"og:image:secure_url"`
+    } `googp:"og:image"`
+}
+```
+
+You may collect in a struct by specifying the root tag.<br>
+In case of specifying `og:image`, googp collect values which property is `og:image:*`.
+
+### [Arrays](https://ogp.me/#array)
+
+```go
+type OGP struct {
+    Image []string `googp:"og:image"`
+}
+```
+
+googp collects values which the same properties.
+
+### [Object Types](https://ogp.me/#types)
+
+In googp, it same as Structured Properties.<br>
+You may define your own type yourself.
