@@ -29,7 +29,15 @@ type arrayAccessor struct {
 
 // structAccessor is an accessor for writing the values of ogp to a struct.
 type structAccessor struct {
-	values map[string]accessor
+	value  *reflect.Value
+	fields map[string]*field
+}
+
+type field struct {
+	structField *reflect.StructField
+	tag         *tag
+	value       *reflect.Value
+	accessor    accessor
 }
 
 func newAccessor(tag *tag, v reflect.Value) accessor {
@@ -39,27 +47,32 @@ func newAccessor(tag *tag, v reflect.Value) accessor {
 	case reflect.Struct:
 		sv := reflect.Indirect(v)
 		t := sv.Type()
-		values := make(map[string]accessor)
+		fields := make(map[string]*field)
 		for i := 0; i < t.NumField(); i++ {
-			f := t.Field(i)
-
+			structField := t.Field(i)
 			fieldValue := sv.Field(i)
 			if !fieldValue.CanSet() {
 				continue
 			}
 
-			tag := newTag(f)
+			tag := newTag(structField)
+			field := &field{
+				structField: &structField,
+				tag:         newTag(structField),
+				value:       &fieldValue,
+			}
+
 			for _, name := range tag.names {
-				if _, ok := values[name]; !ok {
-					values[name] = newAccessor(tag, fieldValue)
+				if _, ok := fields[name]; !ok {
+					fields[name] = field
 				}
 			}
 		}
 
-		if len(values) == 0 {
+		if len(fields) == 0 {
 			return newValueAccessor(v)
 		} else {
-			return &structAccessor{values: values}
+			return &structAccessor{value: &v, fields: fields}
 		}
 	default:
 		return newValueAccessor(v)
@@ -155,12 +168,18 @@ func (f *arrayAccessor) Set(key string, val string) error {
 	return f.current.Set(key, val)
 }
 
-func (f *structAccessor) Set(key string, val string) error {
+func (ac *structAccessor) Set(key string, val string) error {
 	parts := strings.Split(key, ":")
 	for i := len(parts); i >= 0; i-- {
 		k := strings.Join(parts[0:i], ":")
-		if v := f.values[k]; v != nil {
-			return v.Set(key, val)
+		if f := ac.fields[k]; f != nil {
+			if f.accessor == nil {
+				if f.value.Kind() == reflect.Ptr && f.value.IsNil() {
+					f.value.Set(reflect.New(f.value.Type().Elem()))
+				}
+				f.accessor = newAccessor(f.tag, *f.value)
+			}
+			return f.accessor.Set(key, val)
 		}
 	}
 	return nil
