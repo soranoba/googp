@@ -16,6 +16,11 @@ func TestFetch(t *testing.T) {
 	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
 }
 
+func Test_Fetch_NotFound(t *testing.T) {
+	ogp := new(OGP)
+	assertError(t, Fetch(endpoint()+"/notfound.html", ogp))
+}
+
 func assertEqual(t *testing.T, got, expected interface{}) bool {
 	if !reflect.DeepEqual(got, expected) {
 		_, file, line, _ := runtime.Caller(1)
