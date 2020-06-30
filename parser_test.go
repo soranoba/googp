@@ -109,6 +109,20 @@ func Test_Parse3(t *testing.T) {
 	)
 }
 
+func Test_Parse4(t *testing.T) {
+	res, err := http.Get(endpoint() + "/4.html")
+	assertNoError(t, err)
+
+	parser := NewParser(ParserOpts{IncludeBody: true})
+	ogp := new(OGP)
+	assertNoError(t, parser.Parse(res.Body, ogp))
+
+	assertEqual(t, ogp.Title, "og title")
+	assertEqual(t, ogp.Type, "video.other")
+	assertEqual(t, ogp.URL, "https://example.com/url")
+	assertEqual(t, ogp.Images[0].URL, "https://example.com/image")
+}
+
 func endpoint() string {
 	str, ok := os.LookupEnv("NGINX_HOST")
 	if ok {

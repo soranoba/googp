@@ -18,6 +18,9 @@ type ParserOpts struct {
 	// You can add processing when you need to regard the Node in the `<head>` as `<meta>`.
 	// For example, you can use it when you want to get the `<title>`.
 	PreNodeFunc func(*html.Node) *Meta
+	// You can add body to parse target.
+	// If html have some meta tags in the body, you should set to true.
+	IncludeBody bool
 }
 
 // NewParser create a `Parser`
@@ -52,7 +55,9 @@ func (parser *Parser) parseNode(n *html.Node, ac accessor) error {
 	case atom.Html, atom.Head, 0:
 		return parser.parseChildNode(n, ac)
 	case atom.Body:
-		return nil
+		if parser.opts.IncludeBody {
+			return parser.parseChildNode(n, ac)
+		}
 	}
 
 	var meta *Meta
