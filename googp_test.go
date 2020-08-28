@@ -1,9 +1,13 @@
 package googp
 
 import (
+	"net/http"
 	"reflect"
 	"runtime"
 	"testing"
+	"time"
+
+	"golang.org/x/net/context"
 )
 
 func TestFetch(t *testing.T) {
@@ -19,6 +23,26 @@ func TestFetch(t *testing.T) {
 func Test_Fetch_NotFound(t *testing.T) {
 	ogp := new(OGP)
 	assertError(t, Fetch(endpoint()+"/notfound.html", ogp))
+}
+
+func TestParse(t *testing.T) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", endpoint()+"/1.html", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, err := client.Do(req.WithContext(ctx))
+	ogp := new(OGP)
+	assertNoError(t, Parse(res, ogp))
+
+	assertEqual(t, ogp.Title, "title")
+	assertEqual(t, ogp.Type, "website")
+	assertEqual(t, ogp.URL, "http://example.com")
+	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
 }
 
 func assertEqual(t *testing.T, got, expected interface{}) bool {
