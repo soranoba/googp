@@ -26,7 +26,12 @@ func Fetch(rawurl string, i interface{}, opts ...ParserOpts) error {
 	if err != nil {
 		return fmt.Errorf("Failed to get the content: %w", err)
 	}
+	return Parse(res, i, opts...)
+}
 
+// Parse OGP information.
+// It returns an error when the status code of the response is error.
+func Parse(res *http.Response, i interface{}, opts ...ParserOpts) error {
 	if res.StatusCode != 200 {
 		return &BadStatusCodeError{StatusCode: res.StatusCode}
 	}
