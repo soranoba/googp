@@ -8,9 +8,17 @@ import (
 )
 
 var (
-	BadStatusCodeErr   = errors.New("Bad status code")
 	UnsupportedPageErr = errors.New("Unsupported page")
 )
+
+// BadStatusCodeError is an error returned when the status code is not 200 in Fetch.
+type BadStatusCodeError struct {
+	StatusCode int
+}
+
+func (err BadStatusCodeError) Error() string {
+	return fmt.Sprintf("Bad status code (%d)", err.StatusCode)
+}
 
 // Fetch the content from the URL and parse OGP information.
 func Fetch(rawurl string, i interface{}, opts ...ParserOpts) error {
@@ -20,7 +28,7 @@ func Fetch(rawurl string, i interface{}, opts ...ParserOpts) error {
 	}
 
 	if res.StatusCode != 200 {
-		return fmt.Errorf("%w (%d)", BadStatusCodeErr, res.StatusCode)
+		return &BadStatusCodeError{StatusCode: res.StatusCode}
 	}
 
 	ct := res.Header.Get("Content-Type")
