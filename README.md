@@ -1,7 +1,7 @@
 # googp
 [![CircleCI](https://circleci.com/gh/soranoba/googp.svg?style=svg&circle-token=4282311988e7373cbc6033771566d912f1f446c9)](https://circleci.com/gh/soranoba/googp)
 [![Go Report Card](https://goreportcard.com/badge/github.com/soranoba/googp)](https://goreportcard.com/report/github.com/soranoba/googp)
-[![GoDoc](https://godoc.org/github.com/soranoba/googp?status.svg)](https://godoc.org/github.com/soranoba/googp)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/soranoba/googp)](https://pkg.go.dev/github.com/soranoba/googp)
 
 googp is a [OGP (Open Graph protocol)](https://ogp.me/) parser library for Golang.
 
