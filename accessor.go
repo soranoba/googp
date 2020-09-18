@@ -71,9 +71,8 @@ func newAccessor(tag *tag, v reflect.Value) accessor {
 
 		if len(fields) == 0 {
 			return newValueAccessor(v)
-		} else {
-			return &structAccessor{value: &v, fields: fields}
 		}
+		return &structAccessor{value: &v, fields: fields}
 	default:
 		return newValueAccessor(v)
 	}

@@ -1,5 +1,7 @@
 package googp
 
+// OGP is a model that have Basic Metadata and Optional Metadata defined in the reference.
+// ref: https://ogp.me/
 type OGP struct {
 	Title  string  `googp:"og:title" json:"title,omitempty"`
 	Type   string  `googp:"og:type"  json:"type,omitempty"`
@@ -15,6 +17,7 @@ type OGP struct {
 	Videos          []Video  `googp:"og:video"            json:"videos,omitempty"`
 }
 
+// Image is a model that structure contents of og:image.
 type Image struct {
 	URL       string `googp:"og:image,og:image:url" json:"url,omitempty"`
 	SecureURL string `googp:"og:image:secure_url"   json:"secure_url,omitempty"`
@@ -24,12 +27,14 @@ type Image struct {
 	Alt       string `googp:"og:image:alt"          json:"alt,omitempty"`
 }
 
+// Audio is a model that structure contents of og:audio.
 type Audio struct {
 	URL       string `googp:"og:audio,og:audio:url" json:"url,omitempty"`
 	SecureURL string `googp:"og:audio:secure_url"   json:"secure_url,omitempty"`
 	Type      string `googp:"og:audio:type"         json:"type,omitempty"`
 }
 
+// Video is a model that structure contents of og:video.
 type Video struct {
 	URL       string `googp:"og:video,og:video:url" json:"url,omitempty"`
 	SecureURL string `googp:"og:video:secure_url"   json:"secure_url,omitempty"`

@@ -1,24 +1,19 @@
+// Package googp is a OGP (Open Graph protocol) parser library for Golang.
+//
+// This library is fully compliant with the reference, highly customizable, and supports type conversion.
+//
+// Links
+//
+// OGP: https://ogp.me
+// Source code: https://github.com/soranoba/googp
+//
 package googp
 
 import (
-	"errors"
 	"fmt"
 	"mime"
 	"net/http"
 )
-
-var (
-	UnsupportedPageErr = errors.New("Unsupported page")
-)
-
-// BadStatusCodeError is an error returned when the status code is not 200 in Fetch.
-type BadStatusCodeError struct {
-	StatusCode int
-}
-
-func (err BadStatusCodeError) Error() string {
-	return fmt.Sprintf("Bad status code (%d)", err.StatusCode)
-}
 
 // Fetch the content from the URL and parse OGP information.
 func Fetch(rawurl string, i interface{}, opts ...ParserOpts) error {
@@ -43,7 +38,7 @@ func Parse(res *http.Response, i interface{}, opts ...ParserOpts) error {
 			return fmt.Errorf("Invalid Content-Type: %w", err)
 		}
 		if mt != "text/html" {
-			return fmt.Errorf("%w (%s)", UnsupportedPageErr, mt)
+			return fmt.Errorf("%w (%s)", ErrUnsupportedPage, mt)
 		}
 	}
 

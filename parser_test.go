@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
 
-func Test_Parse1(t *testing.T) {
+func TestParser_Parse_1(t *testing.T) {
 	res, err := http.Get(endpoint() + "/1.html")
 	assertNoError(t, err)
 
 	parser := NewParser()
-	ogp := new(OGP)
-	assertNoError(t, parser.Parse(res.Body, ogp))
+	var ogp OGP
+	assertNoError(t, parser.Parse(res.Body, &ogp))
 
 	assertEqual(t, ogp.Title, "title")
 	assertEqual(t, ogp.Type, "website")
@@ -24,7 +25,7 @@ func Test_Parse1(t *testing.T) {
 	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
 }
 
-func Test_Parse1_PreNodeFunc(t *testing.T) {
+func TestParser_Parse_1_PreNodeFunc(t *testing.T) {
 	res, err := http.Get(endpoint() + "/1.html")
 	assertNoError(t, err)
 
@@ -34,8 +35,8 @@ func Test_Parse1_PreNodeFunc(t *testing.T) {
 		}
 		return nil
 	}})
-	ogp := new(OGP)
-	assertNoError(t, parser.Parse(res.Body, ogp))
+	var ogp OGP
+	assertNoError(t, parser.Parse(res.Body, &ogp))
 
 	assertEqual(t, ogp.Title, "SamplePage")
 	assertEqual(t, ogp.Type, "website")
@@ -43,13 +44,13 @@ func Test_Parse1_PreNodeFunc(t *testing.T) {
 	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
 }
 
-func Test_Parse2(t *testing.T) {
+func TestParser_Parse_2(t *testing.T) {
 	res, err := http.Get(endpoint() + "/2.html")
 	assertNoError(t, err)
 
 	parser := NewParser()
-	ogp := new(OGP)
-	assertNoError(t, parser.Parse(res.Body, ogp))
+	var ogp OGP
+	assertNoError(t, parser.Parse(res.Body, &ogp))
 
 	assertEqual(t, ogp.Title, "title")
 	assertEqual(t, ogp.Type, "website")
@@ -80,47 +81,78 @@ func Test_Parse2(t *testing.T) {
 	assertEqual(t, ogp.SiteName, "IMDb")
 }
 
-func Test_Parse2_Custom(t *testing.T) {
+func TestParser_Parse_2_Custom(t *testing.T) {
 	res, err := http.Get(endpoint() + "/2.html")
 	assertNoError(t, err)
 
 	parser := NewParser()
-	type customOgp struct {
+	type CustomOGP struct {
 		Images []string `googp:"og:image"`
 	}
-	ogp := new(customOgp)
-	assertNoError(t, parser.Parse(res.Body, ogp))
+	var ogp CustomOGP
+	assertNoError(t, parser.Parse(res.Body, &ogp))
 
 	assertEqual(t, ogp.Images[0], "http://example.com/rock.jpg")
 	assertEqual(t, ogp.Images[1], "http://example.com/rock2.jpg")
 	assertEqual(t, ogp.Images[2], "http://example.com/rock3.jpg")
 }
 
-func Test_Parse3(t *testing.T) {
+func TestParser_Parse_3(t *testing.T) {
 	res, err := http.Get(endpoint() + "/3.html")
 	assertNoError(t, err)
 
 	parser := NewParser()
-	ogp := new(OGP)
+	var ogp OGP
 	assertEqual(
 		t,
-		fmt.Sprintf("%+v", parser.Parse(res.Body, ogp)),
+		fmt.Sprintf("%+v", parser.Parse(res.Body, &ogp)),
 		"og:image:width field is invalid. (type = int, value = invalid)",
 	)
 }
 
-func Test_Parse4(t *testing.T) {
+func TestParser_Parse_4(t *testing.T) {
 	res, err := http.Get(endpoint() + "/4.html")
 	assertNoError(t, err)
 
 	parser := NewParser(ParserOpts{IncludeBody: true})
-	ogp := new(OGP)
-	assertNoError(t, parser.Parse(res.Body, ogp))
+	var ogp OGP
+	assertNoError(t, parser.Parse(res.Body, &ogp))
 
 	assertEqual(t, ogp.Title, "og title")
 	assertEqual(t, ogp.Type, "video.other")
 	assertEqual(t, ogp.URL, "https://example.com/url")
 	assertEqual(t, ogp.Images[0].URL, "https://example.com/image")
+}
+
+func ExampleParser_Parse() {
+	reader := strings.NewReader(`
+		<html>
+			<head>
+				<meta property="og:title" content="title" />
+				<meta property="og:type" content="website" />
+				<meta property="og:url" content="http://example.com" />
+				<meta property="og:image" content="http://example.com/image.png" />
+			</head>
+			<body>
+			</body>
+		</html>
+	`)
+
+	var ogp OGP
+	if err := NewParser().Parse(reader, &ogp); err != nil {
+		return
+	}
+
+	fmt.Printf("og:title = \"%s\"", ogp.Title)
+	fmt.Printf("og:type = \"%s\"", ogp.Type)
+	fmt.Printf("og:url = \"%s\"", ogp.URL)
+	fmt.Printf("og:image = \"%s\"", ogp.Images[0].URL)
+
+	// Outputs:
+	// og:title = "title"
+	// og:type = "website"
+	// og:url = "http://example.com"
+	// og:image = "http://example.com/image.png"
 }
 
 func endpoint() string {

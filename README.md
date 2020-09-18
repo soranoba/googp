@@ -7,8 +7,20 @@ googp is a [OGP (Open Graph protocol)](https://ogp.me/) parser library for Golan
 
 ## Overviews
 
-- Mapping to your struct and OGP tags.
-- Supports all types that implement [encoding.TextUnmarshaler](https://golang.org/pkg/encoding/#TextUnmarshaler).
+- ✅ Fully compliant with the reference
+- ✅ Highly customizable
+  - Available your own structs
+  - Available parsing your own OG Tags.
+- ✅ Supports type conversion
+  - Supports all types that implement [encoding.TextUnmarshaler](https://golang.org/pkg/encoding/#TextUnmarshaler).
+
+## Installation
+
+To install it, run:
+
+```bash
+go get -u github.com/soranoba/googp
+```
 
 ## Usage
 
@@ -27,14 +39,14 @@ type CustomOGP struct {
 }
 
 func main() {
-    ogp1 := new(googp.OGP)
-    if err := googp.Fetch("https://soranoba.net", ogp1); err != nil {
+    var ogp1 googp.OGP
+    if err := googp.Fetch("https://soranoba.net", &ogp1); err != nil {
         return
     }
     fmt.Println(ogp1)
 
-    ogp2 := new(CustomOGP)
-    if err := googp.Fetch("https://soranoba.net", ogp2); err != nil {
+    var ogp2 CustomOGP
+    if err := googp.Fetch("https://soranoba.net", &ogp2); err != nil {
         return
     }
     fmt.Println(ogp2)

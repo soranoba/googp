@@ -8,14 +8,20 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
+// Meta is a model that structure contents of meta tag in html.
+type Meta struct {
+	Property string
+	Content  string
+}
+
 // Parser is an OGP parser.
 type Parser struct {
 	opts ParserOpts
 }
 
-// ParserOpts is option of `Parser`.
+// ParserOpts is an option of `Parser`.
 type ParserOpts struct {
-	// You can add processing when you need to regard the Node in the `<head>` as `<meta>`.
+	// You can add processing when you need to regard another Nodes as `<meta>`.
 	// For example, you can use it when you want to get the `<title>`.
 	PreNodeFunc func(*html.Node) *Meta
 	// You can add body to parse target.
@@ -44,7 +50,7 @@ func (parser *Parser) Parse(reader io.Reader, i interface{}) error {
 	return parser.ParseNode(node, i)
 }
 
-// Parse OGPs from the HTML node.
+// ParseNode is execute to parse OGPs from the HTML node.
 func (parser *Parser) ParseNode(n *html.Node, i interface{}) error {
 	ac := newAccessor(nil, reflect.ValueOf(i))
 	return parser.parseNode(n, ac)
