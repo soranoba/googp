@@ -7,11 +7,11 @@ googp is a [OGP (Open Graph protocol)](https://ogp.me/) parser library for Golan
 
 ## Overviews
 
-- ✅ Fully compliant with the reference
-- ✅ Highly customizable
+- 💯　Fully compliant with the reference
+- 🔧　Highly customizable
   - Available your own structs
   - Available parsing your own OG Tags.
-- ✅ Supports type conversion
+- 🙌　Supports type conversion
   - Supports all types that implement [encoding.TextUnmarshaler](https://golang.org/pkg/encoding/#TextUnmarshaler).
 
 ## Installation
