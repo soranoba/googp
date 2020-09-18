@@ -1,6 +1,7 @@
 package googp
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -8,8 +9,6 @@ import (
 	"runtime"
 	"testing"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 func TestFetch(t *testing.T) {
