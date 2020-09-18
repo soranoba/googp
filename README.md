@@ -3,7 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/soranoba/googp)](https://goreportcard.com/report/github.com/soranoba/googp)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/soranoba/googp)](https://pkg.go.dev/github.com/soranoba/googp)
 
-googp is a [OGP (Open Graph protocol)](https://ogp.me/) parser library for Golang.
+googp is an [OGP (Open Graph protocol)](https://ogp.me/) parser library for Golang.
 
 ## Overviews
 
