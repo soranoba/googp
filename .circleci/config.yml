@@ -2,7 +2,7 @@ version: 2.1
 
 default_on_docker: &default_on_docker
   docker:
-    - image: circleci/golang:1.14
+    - image: circleci/golang:1.15
 
 defaults_on_machine: &defaults_on_machine
   machine:
