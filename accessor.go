@@ -41,16 +41,22 @@ type field struct {
 }
 
 func newAccessor(tag *tag, v reflect.Value) accessor {
-	switch reflect.Indirect(v).Kind() {
+	iv := reflect.Indirect(v)
+	switch iv.Kind() {
 	case reflect.Array, reflect.Slice:
-		return &arrayAccessor{tag: tag, value: reflect.Indirect(v)}
+		return &arrayAccessor{tag: tag, value: iv}
 	case reflect.Struct:
-		sv := reflect.Indirect(v)
-		t := sv.Type()
+		if iv.CanAddr() {
+			if iv.Addr().Type().Implements(reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()) {
+				return newValueAccessor(v)
+			}
+		}
+
+		t := iv.Type()
 		fields := make(map[string]*field)
 		for i := 0; i < t.NumField(); i++ {
 			structField := t.Field(i)
-			fieldValue := sv.Field(i)
+			fieldValue := iv.Field(i)
 			if !fieldValue.CanSet() {
 				continue
 			}
