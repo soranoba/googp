@@ -8,20 +8,20 @@ import (
 
 func Test_ValueAccessor(t *testing.T) {
 	var s string
-	ac := newValueAccessor(reflect.ValueOf(s)) // string
+	ac := newAccessor(nil, reflect.ValueOf(s)) // string
 	assertError(t, ac.Set("og:title", "title"))
 
-	ac = newValueAccessor(reflect.ValueOf(&s)) // *string
+	ac = newAccessor(nil, reflect.ValueOf(&s)) // *string
 	assertNoError(t, ac.Set("og:title", "title"))
 	assertEqual(t, s, "title")
 	assertNoError(t, ac.Set("og:title", "title2"))
 	assertEqual(t, s, "title") // cannot overwrite
 
 	var time time.Time
-	ac = newValueAccessor(reflect.ValueOf(time)) // URL
+	ac = newAccessor(nil, reflect.ValueOf(time)) // Time
 	assertError(t, ac.Set("video:release_date", "2020-05-20T01:01:25Z"))
 
-	ac = newValueAccessor(reflect.ValueOf(&time)) // *URL
+	ac = newAccessor(nil, reflect.ValueOf(&time)) // *Time
 	assertNoError(t, ac.Set("video:release_date", "2020-05-20T01:01:25Z"))
 	assertEqual(t, time.String(), "2020-05-20 01:01:25 +0000 UTC")
 
@@ -42,10 +42,10 @@ func Test_ValueAccessor(t *testing.T) {
 	assertEqual(t, u, uint(123))
 
 	var f float64
-	ac = newValueAccessor(reflect.ValueOf(f)) // float64
+	ac = newAccessor(nil, reflect.ValueOf(f)) // float64
 	assertError(t, ac.Set("og:number", "23.5"))
 
-	ac = newValueAccessor(reflect.ValueOf(&f)) // *float64
+	ac = newAccessor(nil, reflect.ValueOf(&f)) // *float64
 	assertNoError(t, ac.Set("og:number", "23.5"))
 	assertEqual(t, f, float64(23.5))
 }
@@ -109,7 +109,7 @@ func Test_StructAccessor(t *testing.T) {
 	var v struct {
 		Title       string  `googp:"og:title"`
 		Description *string `googp:"og:description"`
-		Url         *string `googp:"og:url"`
+		URL         *string `googp:"og:url"`
 	}
 
 	ac := newAccessor(nil, reflect.ValueOf(v))
@@ -121,7 +121,7 @@ func Test_StructAccessor(t *testing.T) {
 	assertNoError(t, ac.Set("og:description", "description"))
 	assertEqual(t, v.Title, "title")
 	assertEqual(t, *v.Description, "description")
-	assertEqual(t, v.Url, (*string)(nil))
+	assertEqual(t, v.URL, (*string)(nil))
 }
 
 func Test_StructAccessor_ConflictTag(t *testing.T) {

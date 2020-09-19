@@ -52,21 +52,35 @@ func ExampleFetch() {
 		return
 	}
 
-	fmt.Printf("og:title = \"%s\"", ogp.Title)
-	fmt.Printf("og:type = \"%s\"", ogp.Type)
-	fmt.Printf("og:url = \"%s\"", ogp.URL)
+	fmt.Printf("og:title = \"%s\"\n", ogp.Title)
+	fmt.Printf("og:type = \"%s\"\n", ogp.Type)
+	fmt.Printf("og:url = \"%s\"\n", ogp.URL)
 
-	// Outputs:
+	// Output:
 	// og:title = "Open Graph protocol"
 	// og:type = "website"
 	// og:url = "https://ogp.me/"
 }
 
+type URL struct {
+	url.URL
+}
+
+func (url *URL) UnmarshalText(text []byte) error {
+	u, err := url.Parse(string(text))
+	if err != nil {
+		return err
+	}
+	url.URL = *u
+	return nil
+}
+
 func ExampleFetch_customizeModel() {
 	type MyOGP struct {
-		Title string  `googp:"og:title"`
-		URL   url.URL `googp:"og:url"`
-		AppID int     `googp:"fb:app_id"`
+		Title    string `googp:"og:title"`
+		URL      URL    `googp:"og:url"`
+		ImageURL *URL   `googp:"og:image"`
+		AppID    int    `googp:"fb:app_id"`
 	}
 
 	var ogp MyOGP
@@ -74,13 +88,15 @@ func ExampleFetch_customizeModel() {
 		return
 	}
 
-	fmt.Printf("og:title = \"%s\"", ogp.Title)
-	fmt.Printf("og:url = \"%s\"", ogp.URL.String())
-	fmt.Printf("fb:app_id = \"%d\"", ogp.AppID)
+	fmt.Printf("og:title = \"%s\"\n", ogp.Title)
+	fmt.Printf("og:url = \"%s\"\n", ogp.URL.String())
+	fmt.Printf("og:image = \"%s\"\n", ogp.ImageURL.String())
+	fmt.Printf("fb:app_id = %d\n", ogp.AppID)
 
-	// Outputs:
+	// Output:
 	// og:title = "Open Graph protocol"
 	// og:url = "https://ogp.me/"
+	// og:image = "https://ogp.me/logo.png"
 	// fb:app_id = 115190258555800
 }
 
