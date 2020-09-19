@@ -30,10 +30,13 @@ import (
     "github.com/soranoba/googp"
 )
 
+type Music struct {
+}
+
 type CustomOGP struct {
     Title       string   `googp:"og:title"`
     Description string   `googp:"-"`        // ignored
-    images      []string                    // private field ignored
+    images      []string                    // private field (ignored)
     Videos      []string `googp:"og:video,og:video:url"`
     Musics      Music    `googp:"music"`    // object type
 }
@@ -60,8 +63,8 @@ func main() {
 ```go
 type OGP struct {
     Image struct {
-        URL       `googp:"og:image,og:image:url"`
-        SecureURL `googp:"og:image:secure_url"`
+        URL       string `googp:"og:image,og:image:url"`
+        SecureURL string `googp:"og:image:secure_url"`
     } `googp:"og:image"`
 }
 ```
