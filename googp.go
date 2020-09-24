@@ -5,6 +5,7 @@
 // Links
 //
 // OGP: https://ogp.me
+//
 // Source code: https://github.com/soranoba/googp
 //
 package googp

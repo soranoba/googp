@@ -143,12 +143,12 @@ func ExampleParser_Parse() {
 		return
 	}
 
-	fmt.Printf("og:title = \"%s\"", ogp.Title)
-	fmt.Printf("og:type = \"%s\"", ogp.Type)
-	fmt.Printf("og:url = \"%s\"", ogp.URL)
-	fmt.Printf("og:image = \"%s\"", ogp.Images[0].URL)
+	fmt.Printf("og:title = \"%s\"\n", ogp.Title)
+	fmt.Printf("og:type = \"%s\"\n", ogp.Type)
+	fmt.Printf("og:url = \"%s\"\n", ogp.URL)
+	fmt.Printf("og:image = \"%s\"\n", ogp.Images[0].URL)
 
-	// Outputs:
+	// Output:
 	// og:title = "title"
 	// og:type = "website"
 	// og:url = "http://example.com"
