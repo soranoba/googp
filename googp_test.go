@@ -2,6 +2,7 @@ package googp
 
 import (
 	"context"
+	"encoding"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -48,7 +49,7 @@ func TestParse(t *testing.T) {
 
 func ExampleFetch() {
 	var ogp OGP
-	if err := Fetch("https://ogp.me", &ogp); err != nil {
+	if err := Fetch(endpoint()+"/5.html", &ogp); err != nil {
 		return
 	}
 
@@ -76,6 +77,9 @@ func (url *URL) UnmarshalText(text []byte) error {
 }
 
 func ExampleFetch_customizeModel() {
+	// URL is embedded url.URL and is added TextUnmarshaler implementation.
+	var _ encoding.TextUnmarshaler = &URL{}
+
 	type MyOGP struct {
 		Title    string `googp:"og:title"`
 		URL      URL    `googp:"og:url"`
@@ -84,7 +88,7 @@ func ExampleFetch_customizeModel() {
 	}
 
 	var ogp MyOGP
-	if err := Fetch("https://ogp.me", &ogp); err != nil {
+	if err := Fetch(endpoint()+"/5.html", &ogp); err != nil {
 		return
 	}
 

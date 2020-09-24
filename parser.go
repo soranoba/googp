@@ -19,7 +19,7 @@ type Parser struct {
 	opts ParserOpts
 }
 
-// ParserOpts is an option of `Parser`.
+// ParserOpts is an option of Parser.
 type ParserOpts struct {
 	// You can add processing when you need to regard another Nodes as `<meta>`.
 	// For example, you can use it when you want to get the `<title>`.
