@@ -47,6 +47,26 @@ func TestParse(t *testing.T) {
 	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
 }
 
+func TestParseWithEncoding(t *testing.T) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", endpoint()+"/6.html", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, err := client.Do(req.WithContext(ctx))
+	var ogp OGP
+	assertNoError(t, Parse(res, &ogp))
+
+	assertEqual(t, ogp.Title, "ShiftJISタイトル")
+	assertEqual(t, ogp.Type, "website")
+	assertEqual(t, ogp.URL, "http://example.com")
+	assertEqual(t, ogp.Images[0].URL, "http://example.com/image.png")
+}
+
 func ExampleFetch() {
 	var ogp OGP
 	if err := Fetch(endpoint()+"/5.html", &ogp); err != nil {
