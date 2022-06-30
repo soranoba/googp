@@ -11,9 +11,13 @@
 package googp
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"mime"
 	"net/http"
+
+	"golang.org/x/net/html/charset"
 )
 
 // Fetch the content from the URL and parse OGP information.
@@ -43,5 +47,11 @@ func Parse(res *http.Response, i interface{}, opts ...ParserOpts) error {
 		}
 	}
 
-	return NewParser(opts...).Parse(res.Body, i)
+	br := bufio.NewReader(res.Body)
+	var reader io.Reader = br
+	data, _ := br.Peek(1024)
+	enc, _, _ := charset.DetermineEncoding(data, ct)
+	reader = enc.NewDecoder().Reader(reader)
+
+	return NewParser(opts...).Parse(reader, i)
 }
