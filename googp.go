@@ -7,7 +7,6 @@
 // OGP: https://ogp.me
 //
 // Source code: https://github.com/soranoba/googp
-//
 package googp
 
 import (
@@ -23,6 +22,19 @@ import (
 // Fetch the content from the URL and parse OGP information.
 func Fetch(rawurl string, i interface{}, opts ...ParserOpts) error {
 	res, err := http.Get(rawurl)
+	if err != nil {
+		return fmt.Errorf("Failed to get the content: %w", err)
+	}
+	return Parse(res, i, opts...)
+}
+
+func FetchWithHeader(rawurl string, i interface{}, header http.Header, opts ...ParserOpts) error {
+	req, err := http.NewRequest("GET", rawurl, nil)
+	if err != nil {
+		return fmt.Errorf("Failed to get the content: %w", err)
+	}
+	req.Header = header
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("Failed to get the content: %w", err)
 	}
